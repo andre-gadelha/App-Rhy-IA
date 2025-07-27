@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat com Gemini AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .chat-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 70vh; /* Altura máxima para a caixa de chat */
+            border-bottom: 1px solid #eee;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            word-wrap: break-word; /* Quebra de linha para palavras longas */
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            text-align: right;
+            margin-left: 20%; /* Ocupa menos espaço para mensagens do usuário */
+        }
+        .gemini-message {
+            background-color: #e2e2e2;
+            text-align: left;
+            margin-right: 20%; /* Ocupa menos espaço para mensagens do Gemini */
+        }
+        .input-container {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+        .input-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .input-container button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .input-container button:hover {
+            background-color: #45a049;
+        }
+        .loading {
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
+            color: #555;
+            display: none; /* Escondido por padrão */
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div align="center"><img src=""><h1>Rhy I.A</h1></div>
+        <div class="chat-box" id="chat-box">
+            <div class="message gemini-message">Olá! Como <b>Rhy I.A</b> pode te ajudar hoje?</div>
+        </div>
+        <div class="loading" id="loading-indicator">Digitando...</div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Digite sua mensagem...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            // Adiciona a mensagem do usuário ao chat
+            appendMessage(message, 'user-message');
+            userInput.value = ''; // Limpa o input
+            loadingIndicator.style.display = 'block'; // Mostra indicador de carregamento
+            chatBox.scrollTop = chatBox.scrollHeight; // Rola para o final
+
+            try {
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                appendMessage(data.response, 'gemini-message');
+            } catch (error) {
+                console.error('Erro ao enviar mensagem:', error);
+                appendMessage("Desculpe, houve um erro ao conectar com a IA.", 'gemini-message');
+            } finally {
+                loadingIndicator.style.display = 'none'; // Esconde indicador de carregamento
+                chatBox.scrollTop = chatBox.scrollHeight; // Rola para o final novamente
+            }
+        }
+
+        function appendMessage(text, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+        }
+
+        // Permite enviar a mensagem pressionando Enter
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

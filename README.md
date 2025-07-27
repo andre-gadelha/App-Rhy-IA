@@ -1,0 +1,1 @@
+Agente de I.A para analisar redes sociais e fornecer orientações de melhorias para melhorar o engajamento de indivíduos.
