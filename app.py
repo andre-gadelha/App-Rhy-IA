@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 # Configura a chave de API do Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 print(f"DEBUG: GEMINI_API_KEY (primeiros 5 caracteres): {GEMINI_API_KEY[:5] if GEMINI_API_KEY else 'NÃO CARREGADA'}")
 
 if not GEMINI_API_KEY:
